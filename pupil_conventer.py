@@ -44,38 +44,43 @@ root.attributes('-topmost', True)  # Opened windows will be active. above all wi
 path = filedialog.askdirectory()  # Returns opened path as str
 dir = glob.glob(os.path.join(path, "*", ""), recursive=True)
 
-i = 0
-# Read the movie
-movs = glob.glob(os.path.join(dir[i] + "/*.avi"))
-vidcap = cv2.VideoCapture(movs[0])
-frame_width = int(vidcap.get(3))
+for i in range(dir.__len__()):    # Read the movie
+    movs = glob.glob(os.path.join(dir[i] + "/*.avi"))
+    print(movs)
+    if len(movs) > 1:
+        print("Already exists\n**SKIP**")
+        continue
 
-frame_height = int(vidcap.get(4))
-file_name = os.path.join(dir[i] +'outpy.avi')
+    vidcap = cv2.VideoCapture(movs[0])
+    frame_width = int(vidcap.get(3))
 
-out = cv2.VideoWriter(file_name,  cv2.VideoWriter_fourcc(*"MJPG"), 30, (frame_width, frame_height))
+    frame_height = int(vidcap.get(4))
+    file = os.path.normpath(dir[i]).split(os.path.sep)
+    file_name = os.path.join(dir[i] +file[-1]+ '_binary.avi')
 
-if vidcap.isOpened() == False:
-    print("Error")
-l = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
-count = 0
-printProgressBar(0, l, prefix = 'Progress:', suffix = 'Complete', length = 50)
+    out = cv2.VideoWriter(file_name,  cv2.VideoWriter_fourcc(*"MJPG"), 30, (frame_width, frame_height))
 
-while vidcap.isOpened():
-    success, img = vidcap.read()
-    if not success:
-        break
+    if vidcap.isOpened() == False:
+        print("Error")
+    l = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
+    count = 0
+    printProgressBar(0, l, prefix = 'Progress:', suffix = 'Complete', length = 50)
 
-    (thresh, blackAndWhiteImage) = cv2.threshold(img, 82,82, cv2.THRESH_BINARY_INV)
-    out.write(blackAndWhiteImage)
+    while vidcap.isOpened():
+        success, img = vidcap.read()
+        if not success:
+            break
 
-    count += 1
-    printProgressBar(count + 1, l, prefix='Progress:', suffix='Complete', length=50)
+        (thresh, blackAndWhiteImage) = cv2.threshold(img, 82,82, cv2.THRESH_BINARY_INV)
+        out.write(blackAndWhiteImage)
 
-    k = cv2.waitKey(1) & 0xFF
-    if k == 27:
-        break
+        count += 1
+        printProgressBar(count + 1, l, prefix='Progress:', suffix='Complete', length=50)
 
-vidcap.release()
-out.release()
-cv2.destroyAllWindows()
+        k = cv2.waitKey(1) & 0xFF
+        if k == 27:
+            break
+
+    vidcap.release()
+    out.release()
+    cv2.destroyAllWindows()
