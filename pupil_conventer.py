@@ -45,18 +45,20 @@ path = filedialog.askdirectory()  # Returns opened path as str
 dir = glob.glob(os.path.join(path, "*", ""), recursive=True)
 
 for i in range(dir.__len__()):    # Read the movie
+    file = os.path.normpath(dir[i]).split(os.path.sep)
+
+    file_name = os.path.join(dir[i] + file[-1] + '_binary.avi')
     movs = glob.glob(os.path.join(dir[i] + "/*.avi"))
     print(movs)
-    if len(movs) > 1:
-        print("Already exists\n**SKIP**")
-        continue
 
     vidcap = cv2.VideoCapture(movs[0])
     frame_width = int(vidcap.get(3))
-
     frame_height = int(vidcap.get(4))
-    file = os.path.normpath(dir[i]).split(os.path.sep)
-    file_name = os.path.join(dir[i] +file[-1]+ '_binary.avi')
+
+    if os.path.exists(file_name):
+        print("Already exists\n**SKIP**")
+        continue
+
 
     out = cv2.VideoWriter(file_name,  cv2.VideoWriter_fourcc(*"MJPG"), 30, (frame_width, frame_height))
 
